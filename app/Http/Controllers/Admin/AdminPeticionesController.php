@@ -112,7 +112,7 @@ class AdminPeticionesController extends Controller
                 if($res){
                     $res_file=$this->fileUpload($request,$peticion->id);
                     if($res_file){
-                        return redirect()->route('adminpeticiones.show',$id);
+                        return redirect()->route('admin.peticiones.show',$id);
                     }
                     return back()->withErrors('Error actualizando peticion')->withInput();
                 }
@@ -121,7 +121,7 @@ class AdminPeticionesController extends Controller
         }catch (Exception $exception){
             return back()->withErrors($exception->getMessage())->withInput();
         }
-        return redirect()->route('adminpeticiones.show',$id);
+        return redirect()->route('admin.peticiones.show',$id);
     }
 
     public function show($id){
