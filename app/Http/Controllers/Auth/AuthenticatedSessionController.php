@@ -4,20 +4,16 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
-use App\Models\User;
 use App\Providers\RouteServiceProvider;
-use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules;
 use Illuminate\View\View;
 
 class AuthenticatedSessionController extends Controller
 {
     /**
-     * Display the login view.
+     * Muestra la vista de login.
      */
     public function create(): View
     {
@@ -25,25 +21,28 @@ class AuthenticatedSessionController extends Controller
     }
 
     /**
-     * Handle an incoming authentication request.
+     * Maneja la autenticación del usuario.
      */
-    public function store(LoginRequest $request):RedirectResponse
+    public function store(LoginRequest $request): RedirectResponse
     {
-            $request ->authenticate();
+        $request->authenticate();
+        $request->session()->regenerate();
 
-            $request->session()->regenerate();
+        $user = Auth::user(); // Obtener usuario autenticado
 
-            if (Auth::user()->role_id == 2) {
-                return redirect()->route('admin.home');
-            }
+        // Verificar si el usuario existe y tiene el rol de admin
+        if ($user && $user->role_id == 2) {
+            return redirect()->route('admin.home');
+        }
 
-            return redirect()->intended(RouteServiceProvider::HOME);
+        // Redirigir al home predeterminado si no es admin
+        return redirect()->intended(RouteServiceProvider::HOME);
     }
 
     /**
-     * Destroy an authenticated session.
+     * Cierra la sesión del usuario autenticado.
      */
-    public function destroy(Request $request)
+    public function destroy(Request $request): RedirectResponse
     {
         Auth::logout();
 
@@ -51,11 +50,5 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerateToken();
 
         return redirect('/');
-    }
-    protected function redirectTo($request)
-    {
-        if (!$request->expectsJson()) {
-            return route('login'); // Redirige a login si no está autenticado
-        }
     }
 }
